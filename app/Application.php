@@ -18,7 +18,74 @@ class Application {
         return self::$instance;
     }
 
-    public function init() {
+    public function init()
+    {
+        // Check if we're using the simpler route-based system
+        if (isset($_GET['route'])) {
+            $this->handleRouteFromGet();
+        } else {
+            $this->handleTraditionalRouting();
+        }
+    }
+
+    public function handleTraditionalRouting()
+    {
+        // Get the request URI (e.g., /home or /home/index)
+        $uri = $_SERVER['REQUEST_URI'];
+    
+        // Dynamically calculate the base path using the script location
+        $scriptName = dirname($_SERVER['SCRIPT_NAME']);
+        $uri = str_replace($scriptName, '', $uri);
+    
+        // Remove any query string (e.g., ?param=value) from the URI
+        $uri = parse_url($uri, PHP_URL_PATH);
+    
+        // Remove index.php from the URI if it exists
+        $uri = str_replace('/index.php', '', $uri);
+    
+        // Remove the /it-proj/ subfolder from the URI if it exists
+        $uri = str_replace('/it-proj', '', $uri); 
+    
+        // Split the URI into parts (e.g., /home or /home/index)
+        $uriParts = explode('/', trim($uri, '/'));
+    
+        // Default controller and method
+        $controller = 'HomeController';  // Default to HomeController
+        $method = 'index';  // Default method is index
+    
+        // Check if we have a controller in the URI
+        if (isset($uriParts[0]) && !empty($uriParts[0])) {
+            $controller = ucfirst($uriParts[0]) . 'Controller'; // e.g., HomeController
+        }
+
+        // Check if a method is provided, otherwise default to 'index'
+        if (isset($uriParts[1]) && !empty($uriParts[1])) {
+            $method = $uriParts[1];  // e.g., index or another method
+        }
+    
+        // Build the fully qualified controller class (with the correct namespace)
+        $controllerClass = "\\Controller\\" . $controller;
+    
+        // Check if the controller class exists
+        if (!class_exists($controllerClass)) {
+            http_response_code(404);
+            exit("Controller '$controllerClass' not found.");
+        }
+    
+        // Instantiate the controller
+        $controllerObject = new $controllerClass();
+    
+        // Check if the method exists in the controller
+        if (!method_exists($controllerObject, $method)) {
+            http_response_code(404);
+            exit("Method '$method' not found in controller '$controllerClass'.");
+        }
+    
+        // Call the method
+        call_user_func([$controllerObject, $method]);
+    }
+    
+    public function handleRouteFromGet() {
         // The code assumes that $_GET["route"] contains a controller name and a method name, separated by a /.
         if (!isset($_GET["route"])) {
             exit('No route provided.');
