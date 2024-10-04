@@ -1,13 +1,14 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Ensure the base path is correct if your project is in a subfolder (e.g., /it-proj)
-    RewriteBase /it-proj/
+    # In dockerized environment the application will be placed in the root server directory
+    RewriteBase /
 
-    # Don't rewrite requests for existing files
+    # For not dockerized development environment we can use subfolder inside server root (e.g. /var/www/html) to place the project (e.g., /it-proj)
+    # RewriteBase /it-proj/
+	
+    # Don't rewrite requests for existing files or directories
     RewriteCond %{REQUEST_FILENAME} !-f
-
-    # Don't rewrite requests for existing directories
     RewriteCond %{REQUEST_FILENAME} !-d
 
     # Redirect all other requests to index.php for routing by the application

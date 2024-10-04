@@ -2,7 +2,7 @@
 
 namespace Controller;
 
-use Controller\Controller;  // Ensure you import the base Controller class
+use Controller\Controller;
 
 class AboutController extends Controller
 {

@@ -38,7 +38,6 @@ class Controller {
         // Include the view file. Use __DIR__ to dynamically locate the View folder
         $viewPath = __DIR__ . "/../View/" . $title . ".php";
         
-        //$viewPath = $_SERVER["DOCUMENT_ROOT"] . "/View/" . $title . ".php";
         if (file_exists($viewPath)) {
             include_once($viewPath);
         } else {
