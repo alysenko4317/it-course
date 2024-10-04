@@ -2,21 +2,29 @@
 
 namespace Controller;
 
+use Repository\BookRepository;
+
 class HomeController extends Controller {
 
-   public function __construct()
-   {
-       parent::__construct();
-   }
+    private $repository;
 
-    public function index() {
+    public function __construct()
+    {
+        // Initialize the repository
+        $this->repository = new BookRepository();
+    }
 
-       //$this->loadModel("Product");
+    public function index()
+    {
+        // Set welcome message and book count
+        $this->data("message", "Welcome to the Book Library!");
+        $this->data("book_count", count($this->repository->getTopBooks()));
 
-      // $products = $this->product->getAll();
+        // Get the list of top books from the repository
+        $books = $this->repository->getTopBooks();
+        $this->data("books", $books);
 
-       $this->data("a", 10);
-
-       $this->display("home");
+        // Render the 'home' view
+        $this->display("home");
     }
 }
