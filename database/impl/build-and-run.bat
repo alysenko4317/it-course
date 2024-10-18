@@ -4,7 +4,7 @@
 docker build -t lab2 .\
 
 :: Run the Docker container with a custom port and auto-remove on shutdown
-docker run -d --rm -p 5442:5432/tcp --name lab2-container lab2
+docker run -d --rm -p 5442:5432/tcp --name lab2-container -v %cd%:/repo lab2
 
 :: Wait a moment to ensure the container starts properly
 timeout /t 5 /nobreak >nul
