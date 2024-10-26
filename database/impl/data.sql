@@ -3,18 +3,27 @@ INSERT INTO Room (name, amount) values ('Велика', 40);
 INSERT INTO Room (name, amount) values ('Середня', 20);
 INSERT INTO Room (name, amount) values ('Мала', 10);
 
-INSERT INTO Reader (ticket, first_name, last_name, birthday, registration_date, phone, education, degree, room_id)
-    VALUES('T12345', 'Анатолій', 'Шевченко', '1976-01-08', '2023-01-01', '+380501561212', ' вище', false,
-           (select id from Room where name = 'Мала'));
-INSERT INTO Reader (ticket, first_name, last_name, birthday, registration_date, phone, education, degree, room_id)
+INSERT INTO Reader (ticket, first_name, last_name, birthday, registration_date, phone, education, degree, room_id, password, password_reset_token, password_reset_expires_at)
+    VALUES('T12345', 'Анатолій', 'Шевченко', '1976-01-08', '2023-01-01', '+380501561212', 'вище', false,
+           (SELECT id FROM Room WHERE name = 'Мала'),
+           '$2y$10$Vb8Z/YY3a.ew/ywZ9j.Dd.TuwuZ9PRJXeBMEwH5OuyOKddes/0TGi', NULL, NULL);
+
+INSERT INTO Reader (ticket, first_name, last_name, birthday, registration_date, phone, education, degree, room_id, password, password_reset_token, password_reset_expires_at)
     VALUES('T12384', 'Василь', 'Петренко', '2007-01-08', '2023-01-01', '+380501231872', '', false,
-           (select id from Room where name = 'Середня'));
-INSERT INTO Reader (ticket, first_name, last_name, birthday, registration_date, phone, education, degree, room_id)
-    VALUES('T12035', 'Олеся', 'Костенко', '1982-12-03', '2023-01-01', '+380501234712', ' вище', false,
-           (select id from Room where name = 'Велика'));
-INSERT INTO Reader (ticket, first_name, last_name, birthday, registration_date, phone, education, degree, room_id, release_date)
-    VALUES('GFHHDJ', 'Степан', 'Костюченко', '2005-11-18', '2023-01-01', '+380591231212', ' середне', false,
-           (select id from Room where name = 'Середня'), '2023-01-19');
+           (SELECT id FROM Room WHERE name = 'Середня'),
+           '$2y$10$Vb8Z/YY3a.ew/ywZ9j.Dd.TuwuZ9PRJXeBMEwH5OuyOKddes/0TGi', NULL, NULL);
+
+INSERT INTO Reader (ticket, first_name, last_name, birthday, registration_date, phone, education, degree, room_id, password, password_reset_token, password_reset_expires_at)
+    VALUES('T12035', 'Олеся', 'Костенко', '1982-12-03', '2023-01-01', '+380501234712', 'вище', false,
+           (SELECT id FROM Room WHERE name = 'Велика'),
+           '$2y$10$Vb8Z/YY3a.ew/ywZ9j.Dd.TuwuZ9PRJXeBMEwH5OuyOKddes/0TGi', NULL, NULL);
+
+INSERT INTO Reader (ticket, first_name, last_name, birthday, registration_date, phone, education, degree, room_id, release_date, password, password_reset_token, password_reset_expires_at)
+    VALUES('GFHHDJ', 'Степан', 'Костюченко', '2005-11-18', '2023-01-01', '+380591231212', 'середне', false,
+           (SELECT id FROM Room WHERE name = 'Середня'),
+           '2023-01-19',
+           '$2y$10$Vb8Z/YY3a.ew/ywZ9j.Dd.TuwuZ9PRJXeBMEwH5OuyOKddes/0TGi', NULL, NULL);
+
 
 
 INSERT INTO Author(first_name, last_name) values('Олексій', 'Толстой');

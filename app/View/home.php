@@ -28,6 +28,10 @@
             margin: 20px 0;
             text-align: center;
         }
+        .auth-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -36,6 +40,19 @@
     <header class="library-header">
         <h1><?= $message; ?></h1>
         <p>Welcome to our library! We currently have <strong><?= $book_count; ?></strong> books available.</p>
+
+        <!-- Auth Buttons -->
+        <div class="auth-buttons">
+            <?php if ($isLoggedIn): ?>
+                <!-- Show Cabinet and Logout buttons if the user is logged in -->
+                <a href="/cabinet" class="btn btn-outline-light me-2">Cabinet</a>
+                <a href="/logout" class="btn btn-light">Logout</a>
+            <?php else: ?>
+                <!-- Show Sign In and Sign Up buttons if the user is not logged in -->
+                <a href="/login" class="btn btn-outline-light me-2">Sign In</a>
+                <a href="/register" class="btn btn-light">Sign Up</a>
+            <?php endif; ?>
+        </div>
     </header>
 
     <!-- Search Section -->
@@ -57,8 +74,28 @@
                     <div class='card book-card'>
                         <div class='card-body'>
                             <h5 class='card-title'><?= htmlspecialchars($book->name); ?></h5>
-                            <p class='card-text'><strong>Code:</strong> <?= htmlspecialchars($book->code); ?></p>
-                            <p class='card-text'><strong>Release Date:</strong> <?= htmlspecialchars($book->releaseDate); ?></p>
+                            
+                            <!-- Combine Code and Publish Date into one line -->
+                            <p class='card-text'>
+                                <strong>Code:</strong> <?= htmlspecialchars($book->code); ?>,
+                                <strong>Publish Date:</strong> 
+                                <?= $book->releaseDate ? date('Y', strtotime($book->releaseDate)) : "Unknown"; ?>
+                            </p>
+                            
+                            <!-- Display authors in a single line -->
+                            <p class='card-text'>
+                                <strong>Authors:</strong> 
+                                <?php if (!empty($book->authors)): ?>
+                                    <?php 
+                                        $authorsList = array_map(function($author) {
+                                            return htmlspecialchars($author->firstName . ' ' . $author->lastName);
+                                        }, $book->authors);
+                                        echo implode(', ', $authorsList);
+                                    ?>
+                                <?php else: ?>
+                                    <em>No authors listed</em>
+                                <?php endif; ?>
+                            </p>
                         </div>
                     </div>
                 </div>

@@ -1,12 +1,21 @@
-# Temporary implementation of the function to return a list of books
-def get_books_from_api():
-    # Return a fixed list of books instead of making a real API call
-    books = [
-        {"title": "The Great Gatsby", "author": "F. Scott Fitzgerald", "year": 1925},
-        {"title": "To Kill a Mockingbird", "author": "Harper Lee", "year": 1960},
-        {"title": "1984", "author": "George Orwell", "year": 1949},
-        {"title": "Pride and Prejudice", "author": "Jane Austen", "year": 1813},
-        {"title": "The Catcher in the Rye", "author": "J.D. Salinger", "year": 1951}
-    ]
-    return books
+import os
+import requests
 
+# Get the base URL from the environment variables, with a fallback to localhost
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8200")
+
+# Function to get the list of books via the API
+def get_books_from_api():
+    try:
+        # Send a GET request to the /api/books endpoint
+        response = requests.get(f"{BASE_URL}/api/top-books")
+        response.raise_for_status()  # Raise an exception if the request failed
+        
+        # Parse the JSON response (assuming the API returns books as a JSON array)
+        books = response.json()
+        return books
+    
+    except requests.RequestException as e:
+        # Log the error and return an empty list if the request fails
+        print(f"Error fetching books from API: {e}")
+        return []

@@ -17,15 +17,12 @@
 //    ensuring that only one instance is created. The init() method is where the routing and request
 //    handling happen.
 
-include_once("ClassLoader.php");
+include_once(__DIR__ . "/Loader/ClassLoader.php");
 
 // Security Risks: In a production environment, it’s a best practice to turn off displaying
 //    errors to end-users. Exposing error messages to users can reveal sensitive information
 //    about your codebase or server configuration.
 //    Use display_errors=0 in production to ensure that errors are logged but not shown on the webpage.
-
-include_once(__DIR__ . "/Loader/ClassLoader.php");
-
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);

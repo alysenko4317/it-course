@@ -13,7 +13,6 @@ timeout /t 10 >nul
 REM Open the default browser and navigate to the specified URL
 echo Opening browser...
 
-REM start "" "http://localhost:8200?route=HomeController/index"
-start "" "http://localhost:8200/home/"
+start "" "http://localhost:8200/"
 
 echo Done.

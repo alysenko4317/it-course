@@ -2,7 +2,7 @@
 FROM python:3.9-slim
 
 # Install the required dependencies
-RUN pip install python-telegram-bot
+RUN pip install python-telegram-bot requests
 
 # Set the working directory
 WORKDIR /app

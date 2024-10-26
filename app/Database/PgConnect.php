@@ -20,53 +20,54 @@ class PgConnect implements Connectable {
         $this->connect = pg_connect($connStr);
 
         if(!$this->connect){
-            throw new \Exception("Failed PostgreSQL connect.");
+            throw new \Exception("Failed PostgreSQL connection.");
         }
 
         // Set client encoding (charset)
         pg_set_client_encoding($this->connect, $config["charset"]);
     }
 
-public function exec($sql, $prepare = []) {
-    // Якщо є параметри для підстановки
-    if (!empty($prepare)) {
-        // Генеруємо унікальне ім'я для підготовленого запиту
-        $queryName = uniqid('pg_query_');
+    public function exec($sql, $prepare = []) {
+        // Check if there are parameters to prepare
+        if (!empty($prepare)) {
+            // Generate unique name for the prepared statement
+            $queryName = uniqid('pg_query_');
 
-        // Підготовка запиту
-        $prepared = pg_prepare($this->connect, $queryName, $sql);
-        if (!$prepared) {
+            // Prepare the query (using numbered placeholders $1, $2, ...)
+            $prepared = pg_prepare($this->connect, $queryName, $sql);
+            if (!$prepared) {
+                throw new \Exception(pg_last_error($this->connect));
+            }
+
+            // Execute the prepared query with the provided values
+            $result = pg_execute($this->connect, $queryName, array_values($prepare));
+        } else {
+            // Execute the query without parameters
+            $result = pg_query($this->connect, $sql);
+        }
+
+        if (!$result) {
             throw new \Exception(pg_last_error($this->connect));
         }
 
-        // Виконання запиту з параметрами
-        $result = pg_execute($this->connect, $queryName, $prepare);
-    } else {
-        // Виконання запиту без параметрів
-        $result = pg_query($this->connect, $sql);
-    }
+        $data = [];
 
-    if (!$result) {
-        throw new \Exception(pg_last_error($this->connect));
-    }
-
-    $data = [];
-
-    // Якщо це SELECT запит, то отримуємо результати
-    if (pg_num_rows($result) > 0) {
-        while ($row = pg_fetch_assoc($result)) {
-            $data[] = $row;
+        // If SELECT query, fetch results
+        if (pg_num_rows($result) > 0) {
+            while ($row = pg_fetch_assoc($result)) {
+                $data[] = $row;
+            }
+        } else {
+            // For non-SELECT queries, return the number of affected rows
+            $data = pg_affected_rows($result);
         }
-    } else {
-        // Якщо це маніпулятивний запит (INSERT, UPDATE, DELETE), повертаємо кількість рядків
-        $data = pg_affected_rows($result);
+
+        pg_free_result($result);
+
+        return $data;
     }
 
-    pg_free_result($result);
-
-    return $data;
-}
-
+    // Method to execute a single result query
     public function execOne($sql, $prepare = []){
         $result = $this->exec($sql, $prepare);
 
@@ -77,13 +78,13 @@ public function exec($sql, $prepare = []) {
         return $result[0];
     }
 
+    // Prepare values to escape potentially harmful characters
     public function prepare($value){
         return pg_escape_string($this->connect, trim($value));
     }
 
+    // Get the last inserted ID using a sequence
     public function getLastId($sequenceName = null){
-        // PostgreSQL does not have an equivalent of `mysqli_insert_id`.
-        // You need to provide the sequence name explicitly to get the last inserted ID.
         if ($sequenceName) {
             $result = $this->execOne("SELECT currval('$sequenceName')");
             return $result['currval'];

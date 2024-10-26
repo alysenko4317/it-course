@@ -32,6 +32,20 @@ services:
     networks:
       - app-network
 
+  telegram-bot:
+    build: ../bot  # Path to your tg-bot's Dockerfile directory
+    container_name: telegram-bot
+    restart: always
+    
+    volumes:
+      - ../bot:/app  # Corrected path to mount bot directory for development
+
+    env_file:
+      - ../bot/.env  # Use the .env file for the bot's environment variables (like TOKEN)
+
+    networks:
+      - app-network
+      
 networks:
   app-network:
     driver: bridge

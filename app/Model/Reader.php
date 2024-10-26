@@ -1,3 +1,5 @@
+<?php
+
 namespace Model;
 
 class Reader {
@@ -12,5 +14,7 @@ class Reader {
     public $phone;
     public $education;
     public $degree;
-    public $roomId;  // foreign key
+    public $roomId;
+    public $password;  // To store hashed password
+    public $passwordResetToken;  // For password reset functionality
 }

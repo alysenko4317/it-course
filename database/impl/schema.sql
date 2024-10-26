@@ -13,18 +13,22 @@ CREATE TABLE Room (
 
 CREATE TABLE Reader (
   id SERIAL PRIMARY KEY,
-  ticket varchar(20) UNIQUE NOT NULL,
-  first_name varchar(40) NOT NULL,
-  last_name varchar(40) NOT NULL,
-  other_name varchar(40),
-  birthday date NOT NULL,
-  registration_date date NOT NULL,
-  release_date date,
-  phone varchar(15) NOT NULL,
-  education varchar(20) NOT NULL,
-  degree bool NOT NULL,
-  room_id INTEGER REFERENCES Room(id) NOT NULL
+  ticket VARCHAR(20) UNIQUE NOT NULL,            -- Unique identifier for the reader (acts like a username)
+  first_name VARCHAR(40) NOT NULL,               -- Reader's first name
+  last_name VARCHAR(40) NOT NULL,                -- Reader's last name
+  other_name VARCHAR(40),                        -- Middle or other name (optional)
+  birthday DATE NOT NULL,                        -- Reader's date of birth
+  registration_date DATE NOT NULL,               -- Date of registration
+  release_date DATE,                             -- Release date (optional)
+  phone VARCHAR(15) NOT NULL,                    -- Phone number
+  education VARCHAR(20),                -- Level of education
+  degree BOOLEAN,                       -- Indicates if the reader holds a degree (true/false)
+  room_id INTEGER REFERENCES Room(id) NOT NULL,  -- Foreign key to the Room table (association to a room)
+  password VARCHAR(255) NOT NULL,                -- Hashed password for authentication
+  password_reset_token VARCHAR(255),             -- Token for password reset (optional)
+  password_reset_expires_at TIMESTAMP            -- Expiry time for the password reset token (optional)
 );
+
 
 CREATE TABLE Author(
     id SERIAL PRIMARY KEY,

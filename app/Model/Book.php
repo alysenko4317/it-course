@@ -7,5 +7,6 @@ class Book {
     public $code;
     public $name;
     public $releaseDate;
+    public $authors = []; // Array of Author objects
 }
 
