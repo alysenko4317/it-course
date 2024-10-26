@@ -2,16 +2,10 @@
 
 namespace Model;
 
-class Book
-{
-    public $title;
-    public $author;
-    public $year;
-
-    public function __construct($title, $author, $year)
-    {
-        $this->title = $title;
-        $this->author = $author;
-        $this->year = $year;
-    }
+class Book {
+    public $id;
+    public $code;
+    public $name;
+    public $releaseDate;
 }
+

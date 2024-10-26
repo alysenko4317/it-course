@@ -56,9 +56,9 @@
                 <div class='col-md-4 mb-4'>
                     <div class='card book-card'>
                         <div class='card-body'>
-                            <h5 class='card-title'><?= htmlspecialchars($book->title); ?></h5>
-                            <p class='card-text'><strong>Author:</strong> <?= htmlspecialchars($book->author); ?></p>
-                            <p class='card-text'><strong>Year:</strong> <?= htmlspecialchars($book->year); ?></p>
+                            <h5 class='card-title'><?= htmlspecialchars($book->name); ?></h5>
+                            <p class='card-text'><strong>Code:</strong> <?= htmlspecialchars($book->code); ?></p>
+                            <p class='card-text'><strong>Release Date:</strong> <?= htmlspecialchars($book->releaseDate); ?></p>
                         </div>
                     </div>
                 </div>

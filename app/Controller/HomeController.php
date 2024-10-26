@@ -2,6 +2,7 @@
 
 namespace Controller;
 
+use Database\Connect; // Правильний простір імен для класу Connect
 use Repository\BookRepository;
 
 class HomeController extends Controller {
@@ -10,19 +11,20 @@ class HomeController extends Controller {
 
     public function __construct()
     {
-        $this->repository = new BookRepository();
+        $connect = Connect::getInstance(); // Отримуємо з'єднання через синглтон
+        $this->repository = new BookRepository($connect); // Передаємо з'єднання в репозиторій
     }
 
     public function index()
     {
-        // Set welcome message and book count
+        // Встановлюємо привітальне повідомлення і кількість книг
         $this->data("message", "Welcome to the Book Library!");
         $this->data("book_count", count($this->repository->getTopBooks()));
 
-        // Get the list of top-10 books from the repository
+        // Отримуємо список топ-10 книг з репозиторія
         $books = $this->repository->getTopBooks();
         $this->data("books", $books);
 
-        $this->display("home");   // render the view
+        $this->display("home");   // рендеринг представлення (view)
     }
 }

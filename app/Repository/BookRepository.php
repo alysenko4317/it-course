@@ -4,22 +4,33 @@ namespace Repository;
 
 use Model\Book;
 
-class BookRepository
-{
-    public function getTopBooks()
-    {
-        // Simulating a list of top books (in the future, you may fetch this from a database)
-        return [
-            new Book("The Great Gatsby", "F. Scott Fitzgerald", 1925),
-            new Book("To Kill a Mockingbird", "Harper Lee", 1960),
-            new Book("1984", "George Orwell", 1949),
-            new Book("Pride and Prejudice", "Jane Austen", 1813),
-            new Book("The Catcher in the Rye", "J.D. Salinger", 1951),
-            new Book("Moby Dick", "Herman Melville", 1851),
-            new Book("War and Peace", "Leo Tolstoy", 1869),
-            new Book("The Odyssey", "Homer", "8th Century BC"),
-            new Book("Crime and Punishment", "Fyodor Dostoevsky", 1866),
-            new Book("The Lord of the Rings", "J.R.R. Tolkien", 1954),
-        ];
+class BookRepository extends BaseRepository {
+    public function __construct($connect) {
+        parent::__construct($connect, 'book');  // Вказуємо таблицю 'book'
+    }
+
+    // Метод для отримання топ-N книг за датою випуску
+    public function getTopBooks($limit = 9) {
+        // Формуємо SQL-запит для вибору топ-N книг
+        $sql = "SELECT * FROM book ORDER BY release_date DESC LIMIT $1";
+        $results = $this->connect->exec($sql, [$limit]);
+
+        // Мапимо результати на моделі Book
+        $books = [];
+        foreach ($results as $row) {
+            $books[] = $this->mapResult($row);
+        }
+
+        return $books;
+    }
+	
+    // Реалізуємо мапінг рядка бази даних в модель Book
+    protected function mapResult($row) {
+        $book = new Book();
+        $book->id = $row['id'];
+        $book->code = $row['code'];
+        $book->name = $row['name'];
+        $book->releaseDate = $row['release_date'];
+        return $book;
     }
 }

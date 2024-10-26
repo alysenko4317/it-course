@@ -4,29 +4,31 @@ services:
   web:
     build: .
     container_name: php-apache-web
+
     ports:
       - "8200:80"  # Map localhost:8200 to container's port 80
+
     volumes:
       - .:/var/www/html  # Sync the project files to the container
+
     environment:
       - APACHE_RUN_USER=www-data
       - APACHE_RUN_GROUP=www-data
+
     networks:
       - app-network
 
-  # PostgreSQL database service (will be required in the next app impl steps)
   db:
-    image: postgres:13  # Use the official PostgreSQL image
+    build: ../database/impl # Use your custom Dockerfile for PostgreSQL
     container_name: postgres-db
     restart: always
-    environment:
-      POSTGRES_USER: khpi
-      POSTGRES_PASSWORD: khpi
-      POSTGRES_DB: khpi
+    
     ports:
-      - "5432:5432"  # Expose PostgreSQL on port 5432
+      - "8432:5432"  # Map localhost:8432 to container's port 5432
+
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data  # Persist the database data
+
     networks:
       - app-network
 
