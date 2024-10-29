@@ -83,6 +83,13 @@ class Config {
                 "action" => "getTopBooks",
                 "params" => "",
             ],
+			
+			[
+                "uri" => "link-account",
+                "controller" => "\\Controller\\ReaderController",
+                "action" => "linkTelegramAccount",
+                "params" => "",
+            ],
         ],
         "POST" => [
             [
@@ -104,6 +111,13 @@ class Config {
                 "uri" => "reset-password",
                 "controller" => "\\Controller\\ReaderController",
                 "action" => "resetPasswordPost",
+                "params" => "",
+            ],
+			
+			[
+                "uri" => "api/link",
+                "controller" => "\\Controller\\api\\TelegramController",
+                "action" => "linkTelegramAccountPost",
                 "params" => "",
             ],
         ],

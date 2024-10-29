@@ -2,7 +2,7 @@
 FROM python:3.9-slim
 
 # Install the required dependencies
-RUN pip install python-telegram-bot requests
+RUN pip install python-telegram-bot requests aiohttp
 
 # Set the working directory
 WORKDIR /app

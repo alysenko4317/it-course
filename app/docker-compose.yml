@@ -1,22 +1,35 @@
 version: '3.8'
 
 services:
+
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.debug
     container_name: php-apache-web
 
     ports:
       - "8200:80"  # Map localhost:8200 to container's port 80
+      - "9003:9003"  # Expose Xdebug port for debugging
 
     volumes:
       - .:/var/www/html  # Sync the project files to the container
 
+    env_file:
+      - ../bot/.env
+      
     environment:
       - APACHE_RUN_USER=www-data
       - APACHE_RUN_GROUP=www-data
-
+      - XDEBUG_MODE=debug
+      - XDEBUG_CONFIG="client_host=host.docker.internal client_port=9003"
+      
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      
     networks:
       - app-network
+
 
   db:
     build: ../database/impl # Use your custom Dockerfile for PostgreSQL
@@ -32,6 +45,7 @@ services:
     networks:
       - app-network
 
+
   telegram-bot:
     build: ../bot  # Path to your tg-bot's Dockerfile directory
     container_name: telegram-bot
@@ -45,7 +59,8 @@ services:
 
     networks:
       - app-network
-      
+
+
 networks:
   app-network:
     driver: bridge

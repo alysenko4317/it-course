@@ -2,18 +2,17 @@
 
 namespace Controller;
 
-use Model\Reader;
-use Database\Connect;
+use Service\AuthService;
 use Repository\ReaderRepository;
 use Framework\Session;
 
 class ReaderController extends Controller {
 
-    private $repository;
+    private $authService;
 
     public function __construct() {
-        $connect = Connect::getInstance();
-        $this->repository = new ReaderRepository($connect);
+        $connect = \Database\Connect::getInstance();
+        $this->authService = new AuthService($connect);
     }
 
     public function login() {
@@ -35,73 +34,44 @@ class ReaderController extends Controller {
     // POST requests
 
     public function loginPost() {
-        Session::start();  // Start the session
+        Session::start();
 
         $ticket = $_POST['ticket'];
         $password = $_POST['password'];
 
-        // Find the reader by ticket
-        $reader = $this->repository->findByTicket($ticket);
+        $reader = $this->authService->login($ticket, $password);
 
-        if ($reader && $this->repository->verifyPassword($password, $reader->password)) {
-            // Regenerate session for security and set session value
+        if ($reader) {
             Session::regenerate();
             Session::set('reader_id', $reader->id);
             $this->redirect('/cabinet');
         } else {
-            // Handle login error
             $this->display('login', ['error' => 'Invalid ticket or password']);
         }
     }
 
     public function registerPost() {
-        $ticket = $_POST['ticket'];
-        $first_name = $_POST['first_name'];
-        $last_name = $_POST['last_name'];
-        $birthday = $_POST['birthday'];
-        $phone = $_POST['phone'];
-        $room_id = $_POST['room_id'];  // Capture room_id from form
-        $password = $_POST['password'];
+        $data = [
+            'ticket' => $_POST['ticket'],
+            'first_name' => $_POST['first_name'],
+            'last_name' => $_POST['last_name'],
+            'birthday' => $_POST['birthday'],
+            'phone' => $_POST['phone'],
+            'room_id' => $_POST['room_id'],
+            'password' => $_POST['password'],
+            'telegram_id' => $_POST['telegram_id'] ?? null
+        ];
 
-        // Create a new reader instance
-        $reader = new Reader();
-        $reader->ticket = $ticket;
-        $reader->firstName = $first_name;
-        $reader->lastName = $last_name;
-        $reader->birthday = $birthday;
-        $reader->phone = $phone;
-        $reader->roomId = $room_id;  // Set room_id
-
-        // Hash the password
-        $hashedPassword = $this->repository->hashPassword($password);
-        $reader->password = $hashedPassword;
-
-        // Save the reader to the database
-        $this->repository->save($reader);
-
-        $this->redirect('/login');
+        if ($this->authService->register($data)) {
+            $this->redirect('/login');
+        } else {
+            $this->display('register', ['error' => 'Registration failed']);
+        }
     }
 
     public function forgotPasswordPost() {
         $ticket = $_POST['ticket'];
-
-        // Find the reader by ticket
-        $reader = $this->repository->findByTicket($ticket);
-
-        if ($reader) {
-            // Generate password reset token
-            $token = bin2hex(random_bytes(16));
-            $reader->passwordResetToken = $token;
-            $reader->passwordResetExpiresAt = date('Y-m-d H:i:s', strtotime('+1 hour')); // 1-hour expiration
-
-            // Save the reader's new token and expiry time
-            $this->repository->save($reader);
-
-            // Send email with reset token (simplified)
-            mail($reader->ticket, "Password Reset", "Use this link to reset your password: /reset-password?token=$token");
-        }
-
-        // Always show success message to avoid disclosing whether the ticket exists
+        $this->authService->forgotPassword($ticket);
         $this->display('forgot-password', ['message' => 'If the ticket is valid, a reset link has been sent.']);
     }
 
@@ -109,31 +79,14 @@ class ReaderController extends Controller {
         $token = $_POST['token'];
         $newPassword = $_POST['password'];
 
-        // Find reader by the reset token
-        $reader = $this->repository->findByPasswordResetToken($token);
-
-        if ($reader && strtotime($reader->passwordResetExpiresAt) > time()) {
-            // Hash the new password
-            $hashedPassword = $this->repository->hashPassword($newPassword);
-
-            // Update the password and clear the reset token
-            $reader->password = $hashedPassword;
-            $reader->passwordResetToken = null;
-            $reader->passwordResetExpiresAt = null;
-
-            // Save the updated reader data
-            $this->repository->save($reader);
-
-            // Redirect to login page
+        if ($this->authService->resetPassword($token, $newPassword)) {
             $this->redirect('login');
         } else {
-            // Handle invalid or expired token
             $this->display('reset-password', ['error' => 'Invalid or expired reset token']);
         }
     }
 
     public function logout() {
-        // Clear the session or token
         Session::destroy();
         $this->redirect('login');
     }
@@ -145,12 +98,30 @@ class ReaderController extends Controller {
             $this->redirect('login');
         }
 
-        // Find the logged-in reader
-        $reader = $this->repository->getById($readerId);
-		
-		// Pass the reader data to the view
-        $this->data("reader", $reader);
-		
+        $reader = $this->authService->getReaderById($readerId);
         $this->display('cabinet', ['reader' => $reader]);
+    }
+
+    public function linkTelegramAccount() {
+        $token = $_GET['token'] ?? null;
+
+        if (!$token) {
+            http_response_code(400);
+            echo 'Error: Missing token';
+            return;
+        }
+
+        $telegramData = $this->authService->getTelegramBindingData($token);
+
+        if ($telegramData) {
+            $this->redirect('/register', [
+                'telegram_id' => $telegramData->telegramId,
+                'first_name' => $telegramData->firstName,
+                'last_name' => $telegramData->lastName
+            ]);
+        } else {
+            http_response_code(404);
+            echo 'Error: No binding data found for this token';
+        }
     }
 }

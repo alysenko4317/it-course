@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Request</title>
+</head>
+<body>
+    <h1>Test API Request</h1>
+    <button id="sendRequest">Send Test Request</button>
+
+    <script>
+        document.getElementById('sendRequest').addEventListener('click', () => {
+            // Define the API URL
+            const apiUrl = "http://localhost:8200/api/link"; // Replace with your API URL
+
+            // Define the payload data to send
+            const payload = {
+                "telegram_id": "123456789",
+                "binding_token": "test_token",
+                "first_name": "John",
+                "last_name": "Doe",
+                "username": "johndoe",
+                "phone": "1234567890"
+            };
+
+            // Define headers
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer YOUR_SECRET_TOKEN" // Replace with your actual secret token
+            };
+
+            // Send the POST request using fetch
+            fetch(apiUrl, {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())  // Parse the JSON response
+            .then(data => {
+                console.log("Response:", data);
+                alert("Response: " + JSON.stringify(data));
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Error: " + error.message);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -24,6 +24,7 @@ class ReaderRepository extends BaseRepository {
         $reader->education = $row['education'];
         $reader->degree = $row['degree'];
         $reader->roomId = $row['room_id'];
+        $reader->telegramId = $row['telegram_id'];
         $reader->password = $row['password'];
         $reader->passwordResetToken = $row['password_reset_token'];  // password reset token field
         return $reader;
@@ -47,40 +48,54 @@ class ReaderRepository extends BaseRepository {
         return null;
     }
 
-    public function save(Reader $reader) {
-        if ($reader->id) {
-            // Update existing Reader
-            $this->connect->exec(
-                "UPDATE reader SET first_name = $1, last_name = $2, birthday = $3, phone = $4, room_id = $5, password = $6, password_reset_token = $7 WHERE id = $8", 
-                [
-                    $reader->firstName,
-                    $reader->lastName,
-                    $reader->birthday,
-                    $reader->phone,
-                    $reader->roomId,  // Include room_id
-                    $reader->password,  // Hashed password
-                    $reader->passwordResetToken,
-                    $reader->id
-                ]
-            );
-        } else {
-            // Insert new Reader
-            $this->connect->exec(
-                "INSERT INTO reader (ticket, first_name, last_name, birthday, phone, room_id, password, registration_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", 
-                [
-                    $reader->ticket,
-                    $reader->firstName,
-                    $reader->lastName,
-                    $reader->birthday,
-                    $reader->phone,
-                    $reader->roomId,  // Include room_id
-                    $reader->password,  // Hashed password
-                    date('Y-m-d')  // Registration date
-                ]
-            );
-            $reader->id = $this->connect->getLastId("reader_id_seq");
-        }
-    }
+	public function save(Reader $reader): bool {
+		try {
+			if ($reader->id) {
+				// Update existing Reader
+				$this->connect->exec(
+					"UPDATE reader SET first_name = $1, last_name = $2, birthday = $3, phone = $4, room_id = $5, password = $6, password_reset_token = $7, telegram_id = $8 WHERE id = $8",
+					[
+						$reader->firstName,
+						$reader->lastName,
+						$reader->birthday,
+						$reader->phone,
+						$reader->roomId,  // Include room_id
+						$reader->password,  // Hashed password
+						$reader->passwordResetToken,
+						$reader->id,
+                        $reader->telegramId
+					]
+				);
+			} else {
+				// Insert new Reader
+				$this->connect->exec(
+					"INSERT INTO reader (ticket, first_name, last_name, birthday, phone, room_id, password, registration_date, telegram_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+					[
+						$reader->ticket,
+						$reader->firstName,
+						$reader->lastName,
+						$reader->birthday,
+						$reader->phone,
+						$reader->roomId,  // Include room_id
+						$reader->password,  // Hashed password
+						date('Y-m-d'),  // Registration date
+                        $reader->telegramId
+					]
+				);
+				$reader->id = $this->connect->getLastId("reader_id_seq");
+			}
+
+			// Возвращаем true, если выполнение успешно
+			return true;
+		} catch (\Exception $e) {
+			// Логирование ошибки (рекомендуется добавить систему логирования)
+			error_log($e->getMessage());
+			
+			// Возвращаем false в случае ошибки
+			return false;
+		}
+	}
+
     
     // Hash the password and return the hashed value
     public function hashPassword($password) {

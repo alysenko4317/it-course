@@ -15,6 +15,7 @@ class Reader {
     public $education;
     public $degree;
     public $roomId;
+    public $telegramId;
     public $password;  // To store hashed password
     public $passwordResetToken;  // For password reset functionality
 }

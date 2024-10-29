@@ -54,8 +54,15 @@ class Controller {
             throw new \Exception("View $title not found.");
         }
     }
-    
-    protected function redirect($url) {
+
+    protected function redirect($url, array $params = []) {
+        // If there are parameters, append them as query string
+        if (!empty($params)) {
+            $queryString = http_build_query($params);
+            error_log($queryString);
+            $url .= '?' . $queryString;
+        }
+
         // Ensure that no headers have been sent before attempting to redirect
         if (!headers_sent()) {
             header('Location: ' . $url);
