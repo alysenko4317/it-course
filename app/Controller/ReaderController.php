@@ -33,22 +33,40 @@ class ReaderController extends Controller {
 
     // POST requests
 
-    public function loginPost() {
-        Session::start();
+	/**
+	 * Обробник POST-запиту для входу користувача:
+	 * - Ініціалізує сесію
+	 * - Збирає дані з HTTP-запиту (ticket, password)
+	 * - Делегує процедуру аутентифікації authService::login()
+	 *   (контролер не містить бізнес-логіки логіну — це відповідальність сервісу)
+	 * - Якщо авторизація вдала:
+	 *     • регенерує ідентифікатор сесії
+	 *     • зберігає в сесії reader_id
+	 *     • перенаправляє користувача в особистий кабінет
+	 * - Якщо авторизація не вдала:
+	 *     • відображає форму логіну з повідомленням про помилку
+	 */
+	public function loginPost() {
+		// Запускаємо сесію
+		Session::start();
 
-        $ticket = $_POST['ticket'];
-        $password = $_POST['password'];
+		// Збираємо дані з форми
+		$ticket   = $_POST['ticket'];
+		$password = $_POST['password'];
 
-        $reader = $this->authService->login($ticket, $password);
+		// Делегуємо процес логіну відповідному сервісу
+		$reader = $this->authService->login($ticket, $password);
 
-        if ($reader) {
-            Session::regenerate();
-            Session::set('reader_id', $reader->id);
-            $this->redirect('/cabinet');
-        } else {
-            $this->display('login', ['error' => 'Invalid ticket or password']);
-        }
-    }
+		if ($reader) {
+			// Логін пройшов успішно — оновлюємо сесію
+			Session::regenerate();
+			Session::set('reader_id', $reader->id);
+			$this->redirect('/cabinet');
+		} else {
+			// Логін не вдався — показуємо повідомлення про помилку
+			$this->display('login', ['error' => 'Invalid ticket or password']);
+		}
+	}
 
     public function registerPost() {
         $data = [
